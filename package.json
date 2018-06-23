@@ -1,0 +1,17 @@
+{
+  "name": "backend-mean",
+  "version": "1.0.0",
+  "description": "Backend del adminpro - MEAN",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Irving Didier <irvingdidier@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "mongoose": "^5.1.6"
+  }
+}

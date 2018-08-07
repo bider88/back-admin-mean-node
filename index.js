@@ -15,11 +15,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Routes
-app.use(require('./routes'));
+app.use('/api', require('./routes'));
 
 // DB connection
 mongoose.connect(process.env.URLDB, (err, res) => {
-    if (err) throw err;
+    if (err) throw new Error(err);
 
     console.log('Database \x1b[32m%s\x1b[0m', 'Online');
 })

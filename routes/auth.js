@@ -39,6 +39,24 @@ app.post('/signup', (req, res) => {
 
     if (!body.password) return handleError(res, 400, { message: 'Password is required' });
 
+    const user = new User({
+        name: body.name,
+        email: body.email,
+        password: bcrypt.hashSync(body.password, 10)
+    })
+
+    user.save((err, userDB) => {
+        if (err) return handleError(res, 500, err);
+
+        const token = createToken(userDB)
+
+        res.json({
+            ok: true,
+            token,
+            data: userDB
+        })
+    })
+
 
 
 })

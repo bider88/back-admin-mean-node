@@ -6,6 +6,8 @@ app.use('/user', require('./user'));
 app.use('/hospital', require('./hospital'));
 app.use('/doctor', require('./doctor'));
 app.use('/search', require('./search'));
+app.use('/upload', require('./upload'));
+app.use('/image', require('./image'));
 app.use('/', require('./app'));
 
 module.exports = app;

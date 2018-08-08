@@ -10,17 +10,38 @@ const { verifyToken } = require('../middlewares/auth');
 
 router.get('/', (req, res) => {
 
-    const pag = pagination( req.query.from, req.query.limit )
+    const pag = pagination( req.query.page, req.query.limit )
+
+    const { skip, limit, page } = pag
 
     Doctor.find({})
-    .skip(pag.from)
-    .limit(pag.limit)
+    .skip(skip)
+    .limit(limit)
+    .populate('user', 'name email')
+    .populate({
+        path: 'hospital',
+        populate: {
+            path: 'user',
+            model: 'User',
+            options: { select: '_id name' }
+        }
+    })
     .exec((err, doctorsDB) => {
         if (err) return handleError(res, 500, err);
 
-        res.json({
-            ok: true,
-            data: doctorsDB || []
+        Doctor.count({}, (err, total) => {
+            if (err) return handleError(res, 500, err);
+            
+            res.json({
+                ok: true,
+                pagination: {
+                    skip,
+                    limit,
+                    page,
+                    total
+                },
+                data: doctorsDB
+            })
         })
     })
 })
@@ -30,7 +51,9 @@ router.get('/:id', (req, res) => {
     const { id } = req.params;
 
     if (mongoose.Types.ObjectId.isValid(id)) {
-        Doctor.findById( id, (err, doctorDB) => {
+        Doctor.findById( id)
+        .populate('hospital')
+        .exec((err, doctorDB) => {
             if (err) return handleError(res, 500, err);
     
             res.status(200).json({
@@ -52,7 +75,8 @@ router.post('/', (req, res) => {
 
     const doctor = new Doctor({
         name: body.name,
-        user: id
+        user: id,
+        hospital: body.hospital
     })
 
     doctor.save((err, doctorDB) => {
@@ -71,17 +95,24 @@ router.put('/:id', (req, res) => {
     const body = req.body;
 
     if (mongoose.Types.ObjectId.isValid(id)) {
-        
-        Doctor.findByIdAndUpdate(id, body, { new: true })
-        .exec((err, doctorDB) => {
-            if (err) return handleError(res, 500, err);
+        Doctor.findById(id, (err, doctorDB) => {
+            if(err) return handleError(res, 500, err);
 
-            res.json({
-                ok: true,
-                data: doctorDB
+            if (!doctorDB) return handleError(res, 400, { message: `Doctor with id '${id}' not found` });
+
+            doctorDB.name = body.name;
+            doctorDB.user = req.user._id;
+            doctorDB.hospital = body.hospital;
+
+            doctorDB.save((err, doctorSaved) => {
+                if(err) return handleError(res, 400, err);
+
+                res.status(200).json({
+                    ok: true,
+                    data: doctorSaved
+                })
             })
         })
-
     } else {
         handleError(res, 400, { message: 'ID is not valid'});
     }

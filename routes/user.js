@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 
 const router = express.Router();
 
-const { handleError } = require('../utils');
+const { handleError, pagination } = require('../utils');
 const mongoose = require('mongoose');
 
 const User = require('../models/user');
@@ -14,14 +14,30 @@ router.all('/*', verifyToken);
 
 router.get('/', (req, res) => {
 
+    const pag = pagination( req.query.page, req.query.limit )
+
+    const { skip, limit, page } = pag
+
     User.find({})
+    .skip(skip)
+    .limit(limit)
     .exec((err, userDB) => {
         if (err) return handleError(res, 500, err);
 
-        res.status(200).json({
-            ok: true,
-            data: userDB
-        });
+        User.count({}, (err, total) => {
+            if (err) return handleError(res, 500, err);
+
+            res.status(200).json({
+                ok: true,
+                pagination: {
+                    skip,
+                    limit,
+                    page,
+                    total
+                },
+                data: userDB
+            });
+        })
     })
 })
 

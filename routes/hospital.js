@@ -10,17 +10,30 @@ const { verifyToken } = require('../middlewares/auth');
 
 router.get('/', (req, res) => {
 
-    const pag = pagination( req.query.from, req.query.limit )
+    const pag = pagination( req.query.page, req.query.limit )
+
+    const { skip, limit, page } = pag
 
     Hospital.find({})
-    .skip(pag.from)
-    .limit(pag.limit)
+    .skip(skip)
+    .limit(limit)
+    .populate('user', 'name email')
     .exec((err, hospitalsDB) => {
         if (err) return handleError(res, 500, err);
 
-        res.json({
-            ok: true,
-            data: hospitalsDB || []
+        Hospital.count({}, (err, total) => {
+            if (err) return handleError(res, 500, err);
+
+            res.json({
+                ok: true,
+                pagination: {
+                    skip,
+                    limit,
+                    page,
+                    total
+                },
+                data: hospitalsDB
+            })
         })
     })
 })

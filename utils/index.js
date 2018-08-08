@@ -5,17 +5,18 @@ const handleError = (res, code, err) => {
     });
 }
 
-const pagination = (from, limit) => {
-    let f = from || 0;
-    f = Number(f);
-    f = isNaN(f) ? 0 : f;
+const pagination = (page, limit) => {
+    let p = page || 1;
+    p = Number(p);
+    p = isNaN(p) ? 1 : p;
 
-    let l = limit || 5;
+    let l = limit || 10;
     l = Number(l);
-    l = isNaN(l) ? 5 : l;
+    l = isNaN(l) ? 10 : l;
 
     return {
-        from: f,
+        skip: p * l - l,
+        page,
         limit: l
     }
 }

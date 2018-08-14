@@ -75,7 +75,7 @@ app.post('/google', async (req, res) => {
     } catch(err) {
         return handleError(res, 403, { message: 'Google token is not valid' });
     }
-    
+
     User.findOne({ email: userGoogle.email}, (err, userDB) => {
         if (err) {
             return handleError(res, 500, err);
@@ -91,8 +91,8 @@ app.post('/google', async (req, res) => {
 
                 return res.json({
                     ok: true,
-                    token, 
-                    user: userDB
+                    token,
+                    data: userDB
                 })
             }
         } else {
@@ -114,8 +114,8 @@ app.post('/google', async (req, res) => {
 
                 return res.json({
                     ok: true,
-                    token, 
-                    user: userDB
+                    token,
+                    data: userDB
                 })
             })
         }

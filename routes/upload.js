@@ -31,7 +31,7 @@ app.put('/:type/:id', (req, res) => {
     if ( typeValids.indexOf( type ) < 0 ) {
         return handleError(res, 400, { message: 'Type alloweds are hospital, doctor or user' });
     }
-    
+
     let file = req.files.file;
     let nameFile = file.name.split('.');
     const ext = nameFile[nameFile.length - 1];
@@ -39,17 +39,17 @@ app.put('/:type/:id', (req, res) => {
     const extValids = ['png', 'jpg', 'jpeg', 'gif'];
 
     if (extValids.indexOf( ext ) < 0) {
-        return handleError(res, 400, { 
+        return handleError(res, 400, {
             message: 'Extension alloweds ' + extValids.join(', '),
-            ext 
+            ext
         });
     }
-
-    const name = id + '.png';
+    const time = new Date().getMilliseconds();
+    const name = id + '-' +  time + '.png';
 
     file.mv(`uploads/${type}/${name}`, (err) => {
         if (err) return handleError(res, 400, err);
-        
+
             switch(type) {
                 case 'user':
                     imageUser(res, id, name)
@@ -173,7 +173,7 @@ const imageDoctor = (res, id, name) => {
 }
 
 const deleteImage = (type, name) => {
-    const pathImage = path.resolve(__dirname, `../../uploads/${type}/${name}`);
+    const pathImage = path.resolve(__dirname, `../uploads/${type}/${name}`);
     if ( fs.existsSync(pathImage) ) {
         fs.unlinkSync(pathImage);
     }
